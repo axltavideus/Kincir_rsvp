@@ -1,0 +1,263 @@
+.event-header {
+  position: relative;
+  background-color: #1a1a1a;
+  min-height: 420px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.header-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.header-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(0, 0, 0, 0.5) 60%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
+}
+
+.header-content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  padding: 40px 24px 50px;
+  color: white;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header-content h1 {
+  font-size: 2.75rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  line-height: 1.2;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.header-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 10px 16px;
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.info-label {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin: 0;
+  font-weight: 400;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Host Section */
+.host-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.host-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.host-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.host-label {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.host-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Attendees Section */
+.attendees-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.attendees-avatars {
+  display: flex;
+}
+
+.attendee-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  margin-left: -10px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.attendee-avatar:first-child {
+  margin-left: 0;
+}
+
+.attendee-avatar:nth-child(1) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: 3;
+}
+
+.attendee-avatar:nth-child(2) {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  z-index: 2;
+}
+
+.attendee-avatar:nth-child(3) {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  z-index: 1;
+}
+
+.attendee-avatar:nth-child(4) {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.attendee-avatar.more {
+  background: #333;
+}
+
+.attendees-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.attendees-count {
+  font-weight: 700;
+  color: white;
+}
+
+/* Capacity Badge */
+.capacity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  margin-bottom: 20px;
+}
+
+.capacity-badge .spots {
+  font-weight: 700;
+  color: #4ade80;
+}
+
+.capacity-badge .label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 768px) {
+  .event-header {
+    min-height: 350px;
+  }
+
+  .header-content {
+    padding: 30px 16px 40px;
+  }
+
+  .header-content h1 {
+    font-size: 1.85rem;
+    margin-bottom: 18px;
+  }
+
+  .header-info {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .info-item {
+    width: 100%;
+    padding: 12px 16px;
+  }
+
+  .info-value {
+    font-size: 0.9rem;
+  }
+
+  .host-section {
+    margin-bottom: 16px;
+  }
+
+  .attendees-section {
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .attendee-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.65rem;
+  }
+}
+

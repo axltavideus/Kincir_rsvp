@@ -1,0 +1,173 @@
+.admin-dashboard {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.admin-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.total-count {
+  margin: 8px 0 0 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.btn-export {
+  padding: 10px 20px;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-export:hover {
+  background-color: #0052a3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  font-size: 1.1rem;
+}
+
+.attendees-table {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+thead {
+  background-color: #f5f5f5;
+  border-bottom: 2px solid #ddd;
+}
+
+th {
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+tbody tr.even {
+  background-color: #fafafa;
+}
+
+td {
+  padding: 15px 12px;
+  color: #333;
+}
+
+.name-cell {
+  font-weight: 500;
+}
+
+.email-cell a,
+.phone-cell a {
+  color: #0066cc;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.email-cell a:hover,
+.phone-cell a:hover {
+  text-decoration: underline;
+}
+
+.seat-cell {
+  font-weight: 500;
+  color: #0066cc;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.status-badge.confirmed {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.pending {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.status-badge.interested {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.date-cell {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 20px;
+  }
+
+  .admin-header {
+    flex-direction: column;
+  }
+
+  .admin-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .attendees-table {
+    font-size: 0.85rem;
+  }
+
+  th,
+  td {
+    padding: 10px 8px;
+  }
+
+  .email-cell a,
+  .phone-cell a,
+  .seat-cell {
+    font-size: 0.8rem;
+  }
+}
