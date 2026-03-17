@@ -100,7 +100,7 @@ function App() {
             <div className="pf-hero-stars"></div>
             <div className="pf-hero-content">
               <div className="pf-nav">
-                <div className="pf-logo">partiful</div>
+                <div className="pf-logo">Wahana Visi Indonesia</div>
                 <button className="pf-nav-btn">Create event</button>
               </div>
               <div className="pf-chip">
@@ -115,7 +115,7 @@ function App() {
                 </div>
                 <div className="pf-meta-row">
                   <div className="pf-meta-dot"></div>
-                  ICT GMT+7 · {event.host}
+                  {event.host}
                 </div>
               </div>
             </div>
@@ -257,7 +257,14 @@ function App() {
             <button className="btn-back" onClick={() => setCurrentView('event')}>
               ← Back to event
             </button>
-            <AdminDashboard attendees={attendees} />
+            <AdminDashboard 
+              attendees={attendees} 
+              event={event}
+              onEventUpdate={(updatedEvent) => {
+                setEvent(updatedEvent);
+                fetchEventData(); // Refresh all data
+              }}
+            />
           </div>
         </div>
       )}
