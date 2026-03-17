@@ -1,0 +1,559 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  .pf-root {
+    font-family: 'DM Sans', sans-serif;
+    background: #0d0d0d;
+    min-height: 100vh;
+    color: #f0ece3;
+  }
+
+  .pf-hero {
+    position: relative;
+    height: 340px;
+    overflow: hidden;
+    background: linear-gradient(160deg, #1a0a2e 0%, #0d1a2e 40%, #0a1a0f 100%);
+  }
+
+  .pf-hero-texture {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(120,60,200,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(40,120,200,0.2) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 80%, rgba(20,140,60,0.15) 0%, transparent 50%);
+  }
+
+  .pf-hero-stars {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 70% 35%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 65%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 55% 45%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.3) 0%, transparent 100%);
+  }
+
+  .pf-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 40px 24px 32px;
+  }
+
+  .pf-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .pf-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #f0ece3;
+    letter-spacing: -0.5px;
+  }
+
+  .pf-nav-btn {
+    background: rgba(255,255,255,0.1);
+    border: 0.5px solid rgba(255,255,255,0.15);
+    color: #f0ece3;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .pf-event-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+    color: #f0ece3;
+  }
+
+  .pf-event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .pf-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: rgba(240,236,227,0.7);
+  }
+
+  .pf-meta-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(240,236,227,0.4);
+    flex-shrink: 0;
+  }
+
+  .pf-body {
+    padding: 0 16px 40px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .pf-host-card {
+    background: #161616;
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin: -24px 0 0;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .pf-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .pf-avatar-emoji {
+    background: linear-gradient(135deg, #2a1a4e, #1a2a4e);
+    font-size: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pf-host-info {
+    flex: 1;
+  }
+
+  .pf-host-label {
+    font-size: 11px;
+    color: rgba(240,236,227,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 2px;
+  }
+
+  .pf-host-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #f0ece3;
+  }
+
+  .pf-spots-badge {
+    background: rgba(100,220,120,0.12);
+    border: 0.5px solid rgba(100,220,120,0.25);
+    color: #7deda0;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+
+  .pf-section {
+    background: #161616;
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 12px;
+  }
+
+  .pf-description {
+    font-size: 15px;
+    line-height: 1.75;
+    color: rgba(240,236,227,0.85);
+    white-space: pre-line;
+  }
+
+  .pf-rsvp-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .pf-btn-rsvp {
+    background: #f0ece3;
+    color: #0d0d0d;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .pf-btn-rsvp:hover {
+    background: #fff;
+    transform: translateY(-1px);
+  }
+
+  .pf-btn-interested {
+    background: transparent;
+    color: #f0ece3;
+    border: 0.5px solid rgba(255,255,255,0.2);
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .pf-btn-interested:hover {
+    border-color: rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.05);
+  }
+
+  .pf-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(240,236,227,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 14px;
+  }
+
+  .pf-guest-list {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pf-guest-avatars {
+    display: flex;
+  }
+
+  .pf-guest-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid #161616;
+    margin-left: -10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .pf-guest-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .pf-guest-info {
+    flex: 1;
+  }
+
+  .pf-going-count {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f0ece3;
+    margin-bottom: 2px;
+  }
+
+  .pf-going-label {
+    font-size: 12px;
+    color: rgba(240,236,227,0.45);
+  }
+
+  .pf-view-all {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: rgba(240,236,227,0.7);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .pf-restricted {
+    background: #0d0d0d;
+    border: 0.5px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  .pf-lock-icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+    opacity: 0.4;
+  }
+
+  .pf-restricted-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f0ece3;
+    margin-bottom: 6px;
+  }
+
+  .pf-restricted-sub {
+    font-size: 13px;
+    color: rgba(240,236,227,0.45);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .pf-btn-rsvp-access {
+    background: #f0ece3;
+    color: #0d0d0d;
+    border: none;
+    padding: 11px 28px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+
+  .pf-sign-in-row {
+    font-size: 13px;
+    color: rgba(240,236,227,0.45);
+  }
+
+  .pf-sign-in-row a {
+    color: rgba(240,236,227,0.75);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .pf-footer {
+    padding: 24px 20px 40px;
+    text-align: center;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .pf-footer-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: rgba(240,236,227,0.3);
+    margin-bottom: 12px;
+  }
+
+  .pf-footer-cta {
+    font-size: 13px;
+    color: rgba(240,236,227,0.4);
+  }
+
+  .pf-footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: rgba(240,236,227,0.3);
+  }
+
+  .pf-divider {
+    height: 0.5px;
+    background: rgba(255,255,255,0.07);
+    margin: 12px 0;
+  }
+
+  .pf-detail-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+  }
+
+  .pf-detail-row + .pf-detail-row {
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+  }
+
+  .pf-detail-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .pf-detail-label {
+    font-size: 12px;
+    color: rgba(240,236,227,0.4);
+    margin-bottom: 2px;
+  }
+
+  .pf-detail-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #f0ece3;
+  }
+
+  .pf-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.06);
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: rgba(240,236,227,0.6);
+    margin-bottom: 10px;
+  }
+
+  .pf-chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #7deda0;
+    box-shadow: 0 0 0 2px rgba(125,237,160,0.2);
+  }
+
+  .g1 { background: linear-gradient(135deg, #4a1a6e, #1a3a6e); }
+  .g2 { background: linear-gradient(135deg, #6e1a2a, #6e3a1a); }
+  .g3 { background: linear-gradient(135deg, #1a5a3a, #1a3a5a); }
+  .g4 { background: linear-gradient(135deg, #4a4a1a, #1a4a4a); }
+</style>
+
+<div class="pf-root">
+  <div class="pf-hero">
+    <div class="pf-hero-texture"></div>
+    <div class="pf-hero-stars"></div>
+    <div class="pf-hero-content">
+      <div class="pf-nav">
+        <div class="pf-logo">partiful</div>
+        <button class="pf-nav-btn">Create event</button>
+      </div>
+      <div class="pf-chip">
+        <div class="pf-chip-dot"></div>
+        38 of 40 spots left
+      </div>
+      <div class="pf-event-title">Volunteer Engagement</div>
+      <div class="pf-event-meta">
+        <div class="pf-meta-row">
+          <div class="pf-meta-dot"></div>
+          Saturday, Mar 28 · 12:00pm – 4:00pm
+        </div>
+        <div class="pf-meta-row">
+          <div class="pf-meta-dot"></div>
+          ICT GMT+7 · Wahana Visi Indonesia
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pf-body">
+    <div class="pf-host-card">
+      <div class="pf-avatar-emoji">:)</div>
+      <div class="pf-host-info">
+        <div class="pf-host-label">hosted by</div>
+        <div class="pf-host-name">Wahana Visi Indonesia</div>
+      </div>
+      <div class="pf-spots-badge">38 left</div>
+    </div>
+
+    <div class="pf-section" style="margin-top: 12px;">
+      <div class="pf-detail-row">
+        <div class="pf-detail-icon">📅</div>
+        <div>
+          <div class="pf-detail-label">date & time</div>
+          <div class="pf-detail-value">Saturday, Mar 28 · 12:00pm – 4:00pm</div>
+        </div>
+      </div>
+      <div class="pf-detail-row">
+        <div class="pf-detail-icon">📍</div>
+        <div>
+          <div class="pf-detail-label">location</div>
+          <div class="pf-detail-value">ICT GMT+7</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pf-section">
+      <div class="pf-section-title">About this event</div>
+      <div class="pf-description">Haii Volunteerss!! 👋
+
+Kamu diajak untuk berpartisipasi dalam acara Volunteer Engagement dengan tema "Blue Thread: A Reality We Must Face"!!
+
+Untuk konfirmasi kehadiran, mohon isi data berikut:
+- Email
+- Nomor Telephone  
+- Nama Lengkap
+
+Volunteer diwajibkan untuk melakukan donasi sebesar Rp50.000 jika membatalkan kehadiran H-1.
+
+👉 Klik RSVP untuk isi datanya!!
+
+Terima kasih dan sampai ketemu di acara! ✨</div>
+    </div>
+
+    <div class="pf-rsvp-buttons">
+      <button class="pf-btn-rsvp" onclick="sendPrompt('I want to RSVP for the Volunteer Engagement event. Show me the RSVP form.')">RSVP</button>
+      <button class="pf-btn-interested">Interested</button>
+    </div>
+
+    <div class="pf-section" style="margin-top: 12px;">
+      <div class="pf-section-title">Guest list</div>
+      <div class="pf-guest-list">
+        <div class="pf-guest-avatars">
+          <div class="pf-guest-avatar g1">◔</div>
+          <div class="pf-guest-avatar g2">&gt;.<</div>
+          <div class="pf-guest-avatar g3">:◗</div>
+          <div class="pf-guest-avatar g4">+2</div>
+        </div>
+        <div class="pf-guest-info">
+          <div class="pf-going-count">2 going</div>
+          <div class="pf-going-label">View all guests</div>
+        </div>
+        <button class="pf-view-all">View all</button>
+      </div>
+    </div>
+
+    <div class="pf-restricted">
+      <div class="pf-lock-icon">🔒</div>
+      <div class="pf-restricted-title">Restricted Access</div>
+      <div class="pf-restricted-sub">Only RSVP'd guests can view event activity &amp; see who's going</div>
+      <button class="pf-btn-rsvp-access" onclick="sendPrompt('I want to RSVP for the Volunteer Engagement event. Show me the RSVP form.')">RSVP for access</button>
+      <div class="pf-sign-in-row">Already RSVP'd? <a>Sign in</a></div>
+    </div>
+  </div>
+
+  <div class="pf-footer">
+    <div class="pf-footer-logo">partiful</div>
+    <div class="pf-footer-cta">Create an event for free 🎉</div>
+    <div class="pf-footer-links">
+      <span>Help Center</span>
+      <span>Blog</span>
+      <span>Explore</span>
+    </div>
+  </div>
+</div>

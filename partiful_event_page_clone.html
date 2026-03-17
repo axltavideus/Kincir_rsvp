@@ -1,0 +1,296 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body, .wrap { font-family: 'DM Sans', sans-serif; }
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    background: #0a0a12;
+    min-height: 100vh;
+    color: #f0eefc;
+    padding-bottom: 2rem;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .hero {
+    position: relative;
+    background: linear-gradient(160deg, #1a0a3a 0%, #0d1a3a 50%, #0a1a1a 100%);
+    padding: 2.5rem 1.5rem 2rem;
+    text-align: center;
+    overflow: hidden;
+  }
+  .stars {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px),
+      radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px),
+      radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px);
+    background-size: 120px 120px, 80px 80px, 200px 200px;
+    background-position: 10px 10px, 50px 40px, 20px 70px;
+  }
+  .logo-bar {
+    position: relative;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 2rem;
+    z-index: 1;
+  }
+  .logo { font-weight: 700; font-size: 18px; color: #fff; letter-spacing: -0.5px; }
+  .event-title {
+    position: relative; z-index: 1;
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    line-height: 1.1;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 40px rgba(140,80,255,0.5);
+  }
+  .host-pill {
+    position: relative; z-index: 1;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 0.5px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 6px 14px;
+    margin-top: 1rem;
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+  }
+  .host-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: linear-gradient(135deg, #ff8c42, #ffcc70);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .body { padding: 1.25rem 1.25rem 0; }
+  .info-card {
+    background: rgba(255,255,255,0.05);
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .info-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 0;
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .info-label { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 1px; }
+  .spots-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(80,200,120,0.12);
+    border: 0.5px solid rgba(80,200,120,0.3);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #6de49a;
+    margin-top: 10px;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #6de49a; }
+  .section-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    margin-top: 1.25rem;
+  }
+  .desc-card {
+    background: rgba(255,255,255,0.04);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.8);
+  }
+  .guests-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 1rem;
+  }
+  .avatars { display: flex; }
+  .av {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 2px solid #0a0a12;
+    background: #2a1a4a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    margin-left: -8px;
+    overflow: hidden;
+  }
+  .av:first-child { margin-left: 0; }
+  .av-a { background: linear-gradient(135deg, #4a2a8a, #7a3acc); }
+  .av-b { background: linear-gradient(135deg, #1a4a7a, #3a7acc); }
+  .av-c { background: linear-gradient(135deg, #7a1a3a, #cc3a6a); }
+  .going-text { font-size: 13px; color: rgba(255,255,255,0.5); }
+  .going-count { font-weight: 600; color: #fff; }
+  .view-all {
+    font-size: 13px; color: #a07af0;
+    text-decoration: none;
+    cursor: pointer;
+    margin-left: auto;
+  }
+  .btn-row { display: flex; gap: 10px; margin-top: 0.75rem; }
+  .btn-rsvp {
+    flex: 1;
+    padding: 13px;
+    border-radius: 12px;
+    font-size: 15px; font-weight: 600;
+    border: none; cursor: pointer;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: #fff;
+    transition: opacity 0.15s;
+  }
+  .btn-rsvp:hover { opacity: 0.9; }
+  .btn-interested {
+    flex: 1;
+    padding: 13px;
+    border-radius: 12px;
+    font-size: 15px; font-weight: 500;
+    border: 0.5px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.85);
+    transition: background 0.15s;
+  }
+  .btn-interested:hover { background: rgba(255,255,255,0.1); }
+  .restricted-card {
+    background: rgba(255,255,255,0.03);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 1.5rem 1.25rem;
+    text-align: center;
+    margin-top: 1rem;
+  }
+  .lock-icon {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,0.07);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    margin: 0 auto 0.75rem;
+  }
+  .restricted-title { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+  .restricted-sub { font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 1rem; line-height: 1.5; }
+  .btn-access {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px; font-weight: 500;
+    border: 0.5px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 10px;
+  }
+  .sign-in-link { font-size: 13px; color: rgba(255,255,255,0.4); }
+  .sign-in-link a { color: #a07af0; text-decoration: none; }
+  .footer {
+    margin-top: 2rem;
+    padding: 0 1.25rem;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    flex-wrap: wrap;
+  }
+  .footer a { font-size: 12px; color: rgba(255,255,255,0.3); text-decoration: none; }
+  .footer a:hover { color: rgba(255,255,255,0.6); }
+  .create-btn {
+    display: block;
+    width: calc(100% - 2.5rem);
+    margin: 1.25rem auto 0;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px; font-weight: 500;
+    border: 0.5px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+  }
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="stars"></div>
+    <div class="logo-bar">
+      <span class="logo">p</span>
+    </div>
+    <h1 class="event-title">Volunteer<br>Engagement</h1>
+    <div class="host-pill">
+      <div class="host-avatar">☀️</div>
+      <span>Hosted by <strong>Wahana Visi Indonesia</strong></span>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="info-card">
+      <div class="info-row">
+        <div class="info-icon">📅</div>
+        <div>
+          <div class="info-label">Date</div>
+          Saturday, Mar 28
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">🕐</div>
+        <div>
+          <div class="info-label">Time</div>
+          12:00pm – 4:00pm · ICT GMT
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 0 0 0.25rem;">
+      <div class="spots-badge"><div class="dot"></div> 38/40 spots left</div>
+    </div>
+
+    <div class="section-title" style="margin-top:1rem;">About</div>
+    <div class="desc-card">
+      <p>Haii Volunteerss! 👋</p>
+      <p style="margin-top:0.6rem;">Kamu diajak untuk berpartisipasi dalam acara <strong>Volunteer Engagement</strong> dengan tema <em>"Blue Thread: A Reality We Must Face"</em>!!</p>
+      <p style="margin-top:0.6rem;">Untuk konfirmasi kehadiran, mohon isi data berikut dengan lengkap: <strong>Email, Nomor Telephone, dan Nama Lengkap</strong>.</p>
+      <p style="margin-top:0.6rem;">Volunteer juga diwajibkan untuk melakukan donasi sebesar <strong>Rp50.000</strong> jika membatalkan kehadiran H-1 dari jadwal event.</p>
+      <p style="margin-top:0.6rem;">👉 Klik RSVP untuk isi datanya!! Terima kasih dan sampai ketemu di acara! ✨</p>
+    </div>
+
+    <div class="section-title">Guest list</div>
+    <div class="guests-row">
+      <div class="avatars">
+        <div class="av av-a">🌅</div>
+        <div class="av av-b">🌃</div>
+        <div class="av av-c">🍋</div>
+      </div>
+      <span class="going-text"><span class="going-count">2</span> Going</span>
+      <span class="view-all" onclick="sendPrompt('Show me the full guest list')">View all →</span>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-rsvp" onclick="sendPrompt('I want to RSVP for the Volunteer Engagement event')">RSVP</button>
+      <button class="btn-interested" onclick="sendPrompt('Mark me as Interested in the Volunteer Engagement event')">Interested</button>
+    </div>
+
+    <div class="restricted-card">
+      <div class="lock-icon">🔒</div>
+      <div class="restricted-title">Restricted Access</div>
+      <div class="restricted-sub">Only RSVP'd guests can view event activity &amp; see who's going</div>
+      <button class="btn-access" onclick="sendPrompt('RSVP for access to the event')">RSVP for access</button>
+      <div class="sign-in-link">Already RSVP'd? <a href="https://partiful.com/login" target="_blank">Sign in</a></div>
+    </div>
+
+    <div class="create-btn">Create an event for free 🎉</div>
+
+    <div class="footer">
+      <a href="#">Help Center</a>
+      <a href="#">Blog</a>
+      <a href="#">Explore</a>
+    </div>
+  </div>
+</div>

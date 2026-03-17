@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import EventHeader from './components/EventHeader';
 import RSVPForm from './components/RSVPForm';
 import SeatSelector from './components/SeatSelector';
 import AdminDashboard from './components/AdminDashboard';
@@ -74,41 +73,146 @@ function App() {
     return <div className="app loading">Loading...</div>;
   }
 
+  const getInitials = (name) => {
+    if (!name) return '🤝';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const attendeesArray = Array.isArray(attendees)
+    ? attendees
+    : Array.isArray(attendees?.attendees)
+    ? attendees.attendees
+    : [];
+  const displayAttendees = attendeesArray.slice(0, 3);
+  const remainingAttendees = Math.max(attendeesArray.length - 3, 0);
+
   return (
     <div className="app">
       {currentView === 'event' && event && (
-        <div>
-          <EventHeader 
-            event={event} 
-            capacity={capacity}
-            attendees={attendees}
-          />
-          <div className="event-description">
-            <div className="description-box">
-              <h2>{event.title}</h2>
-              
-              <div className="description-text">
-                <p>{event.description}</p>
+        <div className="pf-root">
+          <div className="pf-hero">
+            <div className="pf-hero-texture"></div>
+            <div className="pf-hero-stars"></div>
+            <div className="pf-hero-content">
+              <div className="pf-nav">
+                <div className="pf-logo">partiful</div>
+                <button className="pf-nav-btn">Create event</button>
               </div>
+              <div className="pf-chip">
+                <div className="pf-chip-dot"></div>
+                {capacity ? `${capacity.available} of ${capacity.total} spots left` : 'Loading...'}
+              </div>
+              <div className="pf-event-title">{event.title}</div>
+              <div className="pf-event-meta">
+                <div className="pf-meta-row">
+                  <div className="pf-meta-dot"></div>
+                  {event.date} · {event.time}
+                </div>
+                <div className="pf-meta-row">
+                  <div className="pf-meta-dot"></div>
+                  ICT GMT+7 · {event.host}
+                </div>
+              </div>
+            </div>
+          </div>
 
-              <div className="button-group">
-                <button 
-                  className="btn btn-primary btn-rsvp"
-                  onClick={handleRSVPClick}
-                  disabled={capacity && capacity.available === 0}
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  {capacity && capacity.available === 0 ? 'Sold Out' : 'RSVP'}
-                </button>
-                <button 
-                  className="btn btn-secondary"
-                  onClick={handleAdminClick}
-                >
-                  Admin
-                </button>
+          <div className="pf-body">
+            <div className="pf-host-card">
+              <div className="pf-avatar-emoji">🙂</div>
+              <div className="pf-host-info">
+                <div className="pf-host-label">hosted by</div>
+                <div className="pf-host-name">{event.host}</div>
               </div>
+              <div className="pf-spots-badge">{capacity ? `${capacity.available} left` : 'Loading'}</div>
+            </div>
+
+            <div className="pf-section" style={{ marginTop: '12px' }}>
+              <div className="pf-detail-row">
+                <div className="pf-detail-icon">📅</div>
+                <div>
+                  <div className="pf-detail-label">date & time</div>
+                  <div className="pf-detail-value">{event.date} · {event.time}</div>
+                </div>
+              </div>
+              <div className="pf-detail-row">
+                <div className="pf-detail-icon">📍</div>
+                <div>
+                  <div className="pf-detail-label">location</div>
+                  <div className="pf-detail-value">ICT GMT+7</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pf-section">
+              <div className="pf-section-title">About this event</div>
+              <div className="pf-description">{event.description}</div>
+            </div>
+
+            <div className="pf-rsvp-buttons">
+              <button
+                className="pf-btn-rsvp"
+                onClick={handleRSVPClick}
+                disabled={capacity && capacity.available === 0}
+              >
+                {capacity && capacity.available === 0 ? 'Sold Out' : 'RSVP'}
+              </button>
+              <button className="pf-btn-interested" onClick={() => alert('Marked as interested!')}>
+                Interested
+              </button>
+            </div>
+
+            <div className="pf-section" style={{ marginTop: '12px' }}>
+              <div className="pf-section-title">Guest list</div>
+              <div className="pf-guest-list">
+                <div className="pf-guest-avatars">
+                  {displayAttendees.map((attendee, idx) => (
+                    <div
+                      key={attendee.id || idx}
+                      className={`pf-guest-avatar ${idx === 0 ? 'g1' : idx === 1 ? 'g2' : 'g3'}`}
+                      title={attendee.name}
+                    >
+                      {getInitials(attendee.name)}
+                    </div>
+                  ))}
+                  {remainingAttendees > 0 && (
+                    <div className="pf-guest-avatar g4">+{remainingAttendees}</div>
+                  )}
+                </div>
+                <div className="pf-guest-info">
+                  <div className="pf-going-count">{attendeesArray.length} going</div>
+                  <div className="pf-going-label">View all guests</div>
+                </div>
+                <button className="pf-view-all" onClick={handleAdminClick}>View all</button>
+              </div>
+            </div>
+
+            <div className="pf-restricted">
+              <div className="pf-lock-icon">🔒</div>
+              <div className="pf-restricted-title">Restricted Access</div>
+              <div className="pf-restricted-sub">
+                Only RSVP'd guests can view event activity &amp; see who's going
+              </div>
+              <button className="pf-btn-rsvp-access" onClick={handleRSVPClick}>
+                RSVP for access
+              </button>
+              <div className="pf-sign-in-row">
+                Already RSVP'd? <a href="https://partiful.com/login" target="_blank" rel="noreferrer">Sign in</a>
+              </div>
+            </div>
+          </div>
+
+          <div className="pf-footer">
+            <div className="pf-footer-logo">partiful</div>
+            <div className="pf-footer-cta">Create an event for free 🎉</div>
+            <div className="pf-footer-links">
+              <span>Help Center</span>
+              <span>Blog</span>
+              <span>Explore</span>
             </div>
           </div>
         </div>
