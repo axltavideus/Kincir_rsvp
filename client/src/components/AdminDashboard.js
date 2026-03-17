@@ -5,6 +5,7 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
   const [activeTab, setActiveTab] = useState('attendees');
   const [events, setEvents] = useState([]);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [eventForm, setEventForm] = useState({
     title: '',
     description: '',
@@ -63,6 +64,7 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
 
   const handleEditEvent = (eventData) => {
     setEditingEvent(eventData);
+    setShowCreateForm(false);
     setEventForm({
       title: eventData.title,
       description: eventData.description,
@@ -93,6 +95,7 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
           onEventUpdate(savedEvent);
         }
         setEditingEvent(null);
+        setShowCreateForm(false);
         setEventForm({
           title: '',
           description: '',
@@ -103,7 +106,7 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
           totalSpots: 40,
           heroImage: '/images/event-hero.jpg'
         });
-        alert(editingEvent ? 'Event updated successfully!' : 'Event created successfully!');
+        alert(editingEvent ? 'Event updated successfully!' : `Event created successfully! RSVP link: ${window.location.origin}/event/${savedEvent.id}`);
       } else {
         const error = await res.json();
         alert('Error: ' + error.error);
@@ -220,6 +223,7 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
               className="btn-create"
               onClick={() => {
                 setEditingEvent(null);
+                setShowCreateForm(true);
                 setEventForm({
                   title: '',
                   description: '',
@@ -236,7 +240,7 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
             </button>
           </div>
 
-          {editingEvent || eventForm.title ? (
+          {editingEvent || showCreateForm ? (
             <div className="event-form">
               <h3>{editingEvent ? 'Edit Event' : 'Create New Event'}</h3>
               <form onSubmit={(e) => { e.preventDefault(); handleSaveEvent(); }}>
@@ -311,6 +315,7 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
                     onChange={(e) => setEventForm({...eventForm, heroImage: e.target.value})}
                     placeholder="/images/event-hero.jpg"
                   />
+                  <p className="hint">Recommended size: 1600×600px (landscape) for the hero section.</p>
                 </div>
                 <div className="form-group">
                   <label>Description:</label>
@@ -330,6 +335,7 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
                     className="btn-cancel"
                     onClick={() => {
                       setEditingEvent(null);
+                      setShowCreateForm(false);
                       setEventForm({
                         title: '',
                         description: '',
@@ -358,7 +364,7 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
                   {events.map((event) => (
                     <div key={event.id} className="event-card">
                       <div className="event-card-header">
-                        <h4>{event.title}</h4>
+                        <h4>{event.title.length > 20 ? event.title.slice(0, 20) + '...' : event.title}</h4>
                         <div className="event-actions">
                           <button
                             className="btn-edit"
@@ -387,6 +393,9 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
                         {event.description.length > 100
                           ? `${event.description.substring(0, 100)}...`
                           : event.description}
+                      </div>
+                      <div className="event-card-link">
+                        <strong style={{ color: '#333' }}>RSVP Link:</strong> <a href={`/event/${event.id}`} target="_blank" rel="noopener noreferrer">{window.location.origin}/event/{event.id}</a>
                       </div>
                     </div>
                   ))}

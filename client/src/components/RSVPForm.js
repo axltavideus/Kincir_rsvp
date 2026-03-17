@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import './RSVPForm.css';
 
-function RSVPForm({ selectedSeat, onSubmitSuccess }) {
+function RSVPForm({ selectedSeat, eventId, onSubmitSuccess }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -83,7 +83,8 @@ function RSVPForm({ selectedSeat, onSubmitSuccess }) {
         body: JSON.stringify({
           ...formData,
           seatNumber: selectedSeat,
-          hasPaymentProof: !!photo
+          hasPaymentProof: !!photo,
+          eventId: eventId
         })
       });
 

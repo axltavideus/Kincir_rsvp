@@ -200,6 +200,114 @@ td {
   color: #0066cc;
 }
 
+.hint {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+
+.event-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.event-card-header h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.event-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-edit,
+.btn-delete {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-edit {
+  background: #28a745;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #218838;
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #c82333;
+}
+
+.event-card-meta p {
+  margin: 4px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.event-card-description {
+  color: #555;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.event-card-link {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e9ecef;
+  font-size: 0.9rem;
+}
+
+.event-card-link a {
+  color: #0066cc;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.event-card-link a:hover {
+  text-decoration: underline;
+}
+
+.events-grid {
+  display: grid;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .events-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+}
+
 /* Event Management Styles */
 .events-management {
   /* Container styles */

@@ -1,13 +1,17 @@
 import React from 'react';
 import './SeatSelector.css';
 
-function SeatSelector({ seats, selectedSeat, onSeatSelect }) {
+function SeatSelector({ seats, selectedSeat, onSeatSelect, totalSpots = 40 }) {
   const rows = 4;
-  const seatsPerRow = 10;
+  const seatsPerRow = Math.ceil(totalSpots / rows);
 
   const getSeatStatus = (seatId) => {
     const seat = seats.find(s => s.seat_id === seatId);
-    return seat ? (seat.is_available ? 'available' : 'taken') : 'available';
+    if (!seat) return 'taken';
+
+    // SQLite may return numbers as strings; ensure we treat only exactly "1" or 1 as available.
+    const isAvailable = Number(seat.is_available) === 1;
+    return isAvailable ? 'available' : 'taken';
   };
 
   return (
@@ -18,8 +22,13 @@ function SeatSelector({ seats, selectedSeat, onSeatSelect }) {
             <span className="row-label">{String.fromCharCode(65 + rowIndex)}</span>
             {Array.from({ length: seatsPerRow }).map((_, seatIndex) => {
               const seatId = rowIndex * seatsPerRow + seatIndex + 1;
-              const status = getSeatStatus(seatId);
+              const isBeyondTotal = seatId > totalSpots;
+              const status = isBeyondTotal ? 'taken' : getSeatStatus(seatId);
               const isSelected = selectedSeat === seatId;
+
+              if (isBeyondTotal) {
+                return <div key={seatId} className="seat empty" />;
+              }
 
               return (
                 <button

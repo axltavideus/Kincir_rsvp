@@ -175,7 +175,51 @@ app.get('/api/seats', (req, res) => {
     if (err) {
       res.status(500).json({ error: err.message });
     } else {
-      res.json(rows);
+      if (rows.length === 0) {
+        // Initialize seats if not exist
+        db.get('SELECT total_spots FROM events WHERE id = ?', [eventId], (err2, eventRow) => {
+          if (err2) {
+            res.status(500).json({ error: err2.message });
+          } else {
+            const totalSpots = eventRow ? eventRow.total_spots : 40;
+            const insertSeat = db.prepare('INSERT INTO seats (event_id, seat_id, is_available) VALUES (?, ?, 1)');
+            for (let i = 1; i <= totalSpots; i++) {
+              insertSeat.run(eventId, i);
+            }
+            insertSeat.finalize(() => {
+              // Now fetch the newly inserted seats
+              db.all('SELECT * FROM seats WHERE event_id = ? ORDER BY seat_id', [eventId], (err3, newRows) => {
+                if (err3) {
+                  res.status(500).json({ error: err3.message });
+                } else {
+                  const normalized = newRows.map(r => ({
+                    ...r,
+                    is_available: Number(r.is_available)
+                  }));
+                  res.json(normalized);
+                }
+              });
+            });
+          }
+        });
+      } else {
+        // Ensure seats are marked as taken if there's an attendee
+        db.all('SELECT seat_number FROM attendees WHERE event_id = ? AND seat_number IS NOT NULL AND status = \'confirmed\'', [eventId], (err4, attendees) => {
+          if (err4) {
+            res.status(500).json({ error: err4.message });
+          } else {
+            const takenSeats = new Set(attendees.map(a => a.seat_number));
+            const normalizedSeats = rows.map(seat => {
+              const isAvailable = !takenSeats.has(seat.seat_id);
+              return {
+                ...seat,
+                is_available: isAvailable ? 1 : 0
+              };
+            });
+            res.json(normalizedSeats);
+          }
+        });
+      }
     }
   });
 });
@@ -249,36 +293,82 @@ app.post('/api/rsvp', (req, res) => {
         return res.status(400).json({ error: 'Event is full' });
       }
 
-      // Try to book seat
-      const query = `
-        INSERT INTO attendees (event_id, name, email, phone, seat_number, status, has_payment_proof)
-        VALUES (?, ?, ?, ?, ?, 'confirmed', ?)
-      `;
+      // Validate and book seat atomically if seatNumber provided
+      if (seatNumber) {
+        db.get('SELECT is_available FROM seats WHERE event_id = ? AND seat_id = ?', [eventId, seatNumber], (err, seatRow) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          if (!seatRow || seatRow.is_available === 0) {
+            return res.status(400).json({ error: 'Selected seat is no longer available. Please choose another.' });
+          }
 
-      db.run(query, [eventId, name, email, phone, seatNumber || null, hasPaymentProof ? 1 : 0], function(err) {
-        if (err) {
-          if (err.message.includes('UNIQUE constraint failed')) {
-            res.status(400).json({ error: 'Email already registered' });
-          } else {
-            res.status(500).json({ error: err.message });
-          }
-        } else {
-          // Update seat if selected
-          if (seatNumber) {
-            db.run('UPDATE seats SET is_available = 0, attendee_id = ? WHERE event_id = ? AND seat_id = ?', 
-              [this.lastID, eventId, seatNumber]);
-          }
-          
-          res.json({
-            id: this.lastID,
-            name,
-            email,
-            phone,
-            seatNumber,
-            status: 'confirmed'
+          // Atomic transaction
+          db.serialize(() => {
+            db.run('BEGIN');
+            const attendeeQuery = `
+              INSERT INTO attendees (event_id, name, email, phone, seat_number, status, has_payment_proof)
+              VALUES (?, ?, ?, ?, ?, 'confirmed', ?)
+            `;
+            db.run(attendeeQuery, [eventId, name, email, phone, seatNumber, hasPaymentProof ? 1 : 0], function(err) {
+              if (err) {
+                db.run('ROLLBACK');
+                if (err.message.includes('UNIQUE constraint failed')) {
+                  res.status(400).json({ error: 'Email already registered' });
+                } else {
+                  res.status(500).json({ error: err.message });
+                }
+                return;
+              }
+
+              // Update seat
+              db.run('UPDATE seats SET is_available = 0, attendee_id = ? WHERE event_id = ? AND seat_id = ?', 
+                [this.lastID, eventId, seatNumber], (updateErr) => {
+                  if (updateErr) {
+                    db.run('ROLLBACK');
+                    res.status(500).json({ error: updateErr.message });
+                    return;
+                  }
+                  db.run('COMMIT', () => {
+                    res.json({
+                      id: this.lastID,
+                      name,
+                      email,
+                      phone,
+                      seatNumber,
+                      status: 'confirmed'
+                    });
+                  });
+                });
+            });
           });
-        }
-      });
+        });
+      } else {
+        // No seat selected - just insert attendee (existing logic)
+        const query = `
+          INSERT INTO attendees (event_id, name, email, phone, seat_number, status, has_payment_proof)
+          VALUES (?, ?, ?, ?, ?, 'confirmed', ?)
+        `;
+        db.run(query, [eventId, name, email, phone, null, hasPaymentProof ? 1 : 0], function(err) {
+          if (err) {
+            if (err.message.includes('UNIQUE constraint failed')) {
+              res.status(400).json({ error: 'Email already registered' });
+            } else {
+              res.status(500).json({ error: err.message });
+            }
+          } else {
+            res.json({
+              id: this.lastID,
+              name,
+              email,
+              phone,
+              seatNumber: null,
+              status: 'confirmed'
+            });
+          }
+        });
+      }
+
     });
   });
 });
@@ -338,6 +428,32 @@ app.get('/api/events', (req, res) => {
   });
 });
 
+// Get specific event
+app.get('/api/events/:id', (req, res) => {
+  const eventId = req.params.id;
+  db.get('SELECT * FROM events WHERE id = ?', [eventId], (err, row) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else if (!row) {
+      res.status(404).json({ error: 'Event not found' });
+    } else {
+      res.json({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        date: row.date,
+        time: row.time,
+        location: row.location,
+        host: row.host,
+        totalSpots: row.total_spots,
+        heroImage: row.hero_image,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+      });
+    }
+  });
+});
+
 // Create new event
 app.post('/api/events', (req, res) => {
   const { title, description, date, time, location, host, totalSpots, heroImage } = req.body;
@@ -387,21 +503,50 @@ app.put('/api/events/:id', (req, res) => {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
-  const query = `
-    UPDATE events 
-    SET title = ?, description = ?, date = ?, time = ?, location = ?, host = ?, 
-        total_spots = ?, hero_image = ?, updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `;
-
-  db.run(query, [title, description, date, time, location, host, totalSpots || 40, heroImage || '/images/event-hero.jpg', eventId], function(err) {
+  // Fetch old total_spots first
+  db.get('SELECT total_spots FROM events WHERE id = ?', [eventId], (err, oldEvent) => {
     if (err) {
-      res.status(500).json({ error: err.message });
-    } else if (this.changes === 0) {
-      res.status(404).json({ error: 'Event not found' });
-    } else {
-      // If total spots changed, we might need to adjust seats
-      // For simplicity, we'll just update the event for now
+      return res.status(500).json({ error: err.message });
+    }
+    if (!oldEvent) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    const oldTotalSpots = oldEvent.total_spots;
+    const newTotalSpots = totalSpots || 40;
+
+    const query = `
+      UPDATE events 
+      SET title = ?, description = ?, date = ?, time = ?, location = ?, host = ?, 
+          total_spots = ?, hero_image = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `;
+
+    db.run(query, [title, description, date, time, location, host, newTotalSpots, heroImage || '/images/event-hero.jpg', eventId], function(err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ error: 'Event not found' });
+      }
+
+      // Sync seats table with new total_spots
+      if (newTotalSpots !== oldTotalSpots) {
+        db.serialize(() => {
+          if (newTotalSpots > oldTotalSpots) {
+            // Add new seats
+            const insertSeat = db.prepare('INSERT INTO seats (event_id, seat_id, is_available) VALUES (?, ?, 1)');
+            for (let i = oldTotalSpots + 1; i <= newTotalSpots; i++) {
+              insertSeat.run(eventId, i);
+            }
+            insertSeat.finalize();
+          } else if (newTotalSpots < oldTotalSpots) {
+            // Remove excess seats (preserve taken seats up to new total)
+            db.run('DELETE FROM seats WHERE event_id = ? AND seat_id > ?', [eventId, newTotalSpots]);
+          }
+        });
+      }
+
       res.json({
         id: eventId,
         title,
@@ -410,10 +555,10 @@ app.put('/api/events/:id', (req, res) => {
         time,
         location,
         host,
-        totalSpots: totalSpots || 40,
+        totalSpots: newTotalSpots,
         heroImage: heroImage || '/images/event-hero.jpg'
       });
-    }
+    });
   });
 });
 
