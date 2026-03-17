@@ -5,3 +5,6 @@ client/build/
 nul
 TODO.md
 server/uploads/
+*.sqlite3
+*.db
+*.sqlite
