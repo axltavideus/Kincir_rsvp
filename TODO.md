@@ -1,1 +1,0 @@
-# TODO: Fix server SyntaxError\n\n1. [ ] Edit server/index.js to replace malformed seats initialization callback\n2. [ ] Test server startup with `node server/index.js`\n3. [ ] Verify /api/health endpoint works\n4. [ ] Mark complete

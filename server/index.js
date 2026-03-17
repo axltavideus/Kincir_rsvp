@@ -132,6 +132,12 @@ function initDatabase() {
           console.log('Initialized 40 seats for default event');
         }
       });
+
+      // Start server after database is initialized
+      app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+        console.log(`navigate to http://localhost:${PORT}/api/health to check server status`);
+      });
     }
   });
 }
@@ -177,24 +183,32 @@ app.get('/api/seats', (req, res) => {
 // Get attendees count and capacity
 app.get('/api/capacity', (req, res) => {
   const eventId = req.query.eventId || 1;
-  db.get('SELECT COUNT(*) as confirmed FROM attendees WHERE event_id = ? AND status = "confirmed"', [eventId], (err, row) => {
+  console.log('Capacity request for eventId:', eventId);
+  
+  const query = `
+    SELECT 
+      COALESCE(confirmed_count.confirmed, 0) as confirmed,
+      e.total_spots as total,
+      (e.total_spots - COALESCE(confirmed_count.confirmed, 0)) as available
+    FROM events e
+    LEFT JOIN (
+      SELECT event_id, COUNT(*) as confirmed 
+      FROM attendees 
+      WHERE status = 'confirmed' 
+      GROUP BY event_id
+    ) confirmed_count ON e.id = confirmed_count.event_id
+    WHERE e.id = ?
+  `;
+  
+  db.get(query, [eventId], (err, row) => {
     if (err) {
-      res.status(500).json({ error: err.message });
-    } else {
-      // Get total spots for this event
-      db.get('SELECT total_spots FROM events WHERE id = ?', [eventId], (err2, eventRow) => {
-        if (err2) {
-          res.status(500).json({ error: err2.message });
-        } else {
-          const total = eventRow ? eventRow.total_spots : 40;
-          res.json({
-            confirmed: row.confirmed,
-            total: total,
-            available: total - row.confirmed
-          });
-        }
-      });
+      console.error('Capacity query error:', err.message);
+      return res.status(500).json({ error: err.message });
     }
+    if (!row) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+    res.json(row);
   });
 });
 
@@ -219,7 +233,7 @@ app.post('/api/rsvp', (req, res) => {
   }
 
   // Check capacity
-  db.get('SELECT COUNT(*) as confirmed FROM attendees WHERE event_id = ? AND status = "confirmed"', [eventId], (err, row) => {
+  db.get('SELECT COUNT(*) as confirmed FROM attendees WHERE event_id = ? AND status = \'confirmed\'', [eventId], (err, row) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -465,9 +479,4 @@ app.use((err, req, res, next) => {
 
 // Start server
 initDatabase();
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`navigate to http://localhost:${PORT}/api/health to check server status`);
-});
 
