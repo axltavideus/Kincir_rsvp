@@ -13,6 +13,9 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -455,8 +458,9 @@ app.get('/api/events/:id', (req, res) => {
 });
 
 // Create new event
-app.post('/api/events', (req, res) => {
-  const { title, description, date, time, location, host, totalSpots, heroImage } = req.body;
+app.post('/api/events', upload.single('poster'), (req, res) => {
+  const { title, description, date, time, location, host, totalSpots } = req.body;
+  const posterPath = req.file ? `/uploads/${req.file.filename}` : '/images/event-hero.jpg';
 
   if (!title || !description || !date || !time || !location || !host) {
     return res.status(400).json({ error: 'All fields are required' });
@@ -467,7 +471,7 @@ app.post('/api/events', (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
   `;
 
-  db.run(query, [title, description, date, time, location, host, totalSpots || 40, heroImage || '/images/event-hero.jpg'], function(err) {
+  db.run(query, [title, description, date, time, location, host, totalSpots || 40, posterPath], function(err) {
     if (err) {
       res.status(500).json({ error: err.message });
     } else {
@@ -488,23 +492,24 @@ app.post('/api/events', (req, res) => {
         location,
         host,
         totalSpots: totalSpots || 40,
-        heroImage: heroImage || '/images/event-hero.jpg'
+        heroImage: posterPath
       });
     }
   });
 });
 
 // Update event
-app.put('/api/events/:id', (req, res) => {
+app.put('/api/events/:id', upload.single('poster'), (req, res) => {
   const eventId = req.params.id;
-  const { title, description, date, time, location, host, totalSpots, heroImage } = req.body;
+  const { title, description, date, time, location, host, totalSpots } = req.body;
+  const newPosterPath = req.file ? `/uploads/${req.file.filename}` : null;
 
   if (!title || !description || !date || !time || !location || !host) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
-  // Fetch old total_spots first
-  db.get('SELECT total_spots FROM events WHERE id = ?', [eventId], (err, oldEvent) => {
+  // Fetch old event data
+  db.get('SELECT total_spots, hero_image FROM events WHERE id = ?', [eventId], (err, oldEvent) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -514,6 +519,7 @@ app.put('/api/events/:id', (req, res) => {
 
     const oldTotalSpots = oldEvent.total_spots;
     const newTotalSpots = totalSpots || 40;
+    const posterPath = newPosterPath || oldEvent.hero_image;
 
     const query = `
       UPDATE events 
@@ -522,7 +528,7 @@ app.put('/api/events/:id', (req, res) => {
       WHERE id = ?
     `;
 
-    db.run(query, [title, description, date, time, location, host, newTotalSpots, heroImage || '/images/event-hero.jpg', eventId], function(err) {
+    db.run(query, [title, description, date, time, location, host, newTotalSpots, posterPath, eventId], function(err) {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
@@ -556,7 +562,7 @@ app.put('/api/events/:id', (req, res) => {
         location,
         host,
         totalSpots: newTotalSpots,
-        heroImage: heroImage || '/images/event-hero.jpg'
+        heroImage: posterPath
       });
     });
   });

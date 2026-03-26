@@ -4,6 +4,7 @@ import './AdminDashboard.css';
 function AdminDashboard({ attendees, event, onEventUpdate }) {
   const [activeTab, setActiveTab] = useState('attendees');
   const [events, setEvents] = useState([]);
+  const [eventAttendeeData, setEventAttendeeData] = useState([]);
   const [editingEvent, setEditingEvent] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [eventForm, setEventForm] = useState({
@@ -14,10 +15,10 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
     location: '',
     host: '',
     totalSpots: 40,
-    heroImage: '/images/event-hero.jpg'
+    posterFile: null
   });
 
-  // Defensive guard: ensure we always use an array
+  // Defensive guard: ensure we always use an array (fallback props usage)
   const attendeesArray = Array.isArray(attendees)
     ? attendees
     : Array.isArray(attendees?.attendees)
@@ -27,8 +28,32 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
   useEffect(() => {
     if (activeTab === 'events') {
       fetchEvents();
+    } else if (activeTab === 'attendees') {
+      fetchEventsWithAttendees();
     }
   }, [activeTab]);
+
+  const fetchEventsWithAttendees = async () => {
+    try {
+      const eventsRes = await fetch('/api/events');
+      const eventsData = await eventsRes.json();
+
+      const attendeesByEvent = await Promise.all(
+        eventsData.map(async (eventItem) => {
+          const attendeeRes = await fetch(`/api/attendees?eventId=${eventItem.id}`);
+          const attendeeData = await attendeeRes.json();
+          return {
+            ...eventItem,
+            attendees: Array.isArray(attendeeData) ? attendeeData : []
+          };
+        })
+      );
+
+      setEventAttendeeData(attendeesByEvent);
+    } catch (error) {
+      console.error('Error fetching events with attendees:', error);
+    }
+  };
 
   const fetchEvents = async () => {
     try {
@@ -41,18 +66,26 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
   };
 
   const exportToCSV = () => {
-    const headers = ['Name', 'Email', 'Phone', 'Seat', 'Status', 'Registered At'];
-    const csvContent = [
-      headers.join(','),
-      ...attendeesArray.map(a => [
-        `"${a.name}"`,
-        a.email,
-        a.phone,
-        a.seat_number || 'N/A',
-        a.status,
-        new Date(a.created_at).toLocaleString()
-      ].join(','))
-    ].join('\n');
+    const headers = ['Event', 'Name', 'Email', 'Phone', 'Seat', 'Status', 'Registered At'];
+    const rows = [];
+
+    const source = eventAttendeeData.length > 0 ? eventAttendeeData : [{ id: null, title: 'All events', attendees: attendeesArray }];
+
+    source.forEach((eventItem) => {
+      (eventItem.attendees || []).forEach((a) => {
+        rows.push([
+          `"${eventItem.title || 'Unknown'}"`,
+          `"${a.name}"`,
+          a.email,
+          a.phone,
+          a.seat_number || 'N/A',
+          a.status,
+          a.created_at ? new Date(a.created_at).toLocaleString() : ''
+        ].join(','));
+      });
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -60,6 +93,10 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
     a.href = url;
     a.download = 'rsvp_attendees.csv';
     a.click();
+  };
+
+  const refreshAttendees = () => {
+    fetchEventsWithAttendees();
   };
 
   const handleEditEvent = (eventData) => {
@@ -73,19 +110,30 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
       location: eventData.location,
       host: eventData.host,
       totalSpots: eventData.totalSpots,
-      heroImage: eventData.heroImage
+      posterFile: null
     });
   };
 
   const handleSaveEvent = async () => {
+    const formData = new FormData();
+    formData.append('title', eventForm.title);
+    formData.append('description', eventForm.description);
+    formData.append('date', eventForm.date);
+    formData.append('time', eventForm.time);
+    formData.append('location', eventForm.location);
+    formData.append('host', eventForm.host);
+    formData.append('totalSpots', eventForm.totalSpots);
+    if (eventForm.posterFile) {
+      formData.append('poster', eventForm.posterFile);
+    }
+
     try {
       const url = editingEvent ? `/api/events/${editingEvent.id}` : '/api/events';
       const method = editingEvent ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(eventForm)
+        body: formData
       });
 
       if (res.ok) {
@@ -104,7 +152,7 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
           location: '',
           host: '',
           totalSpots: 40,
-          heroImage: '/images/event-hero.jpg'
+          posterFile: null
         });
         alert(editingEvent ? 'Event updated successfully!' : `Event created successfully! RSVP link: ${window.location.origin}/event/${savedEvent.id}`);
       } else {
@@ -159,57 +207,64 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
           <div className="admin-header">
             <div>
               <h2>Admin Dashboard</h2>
-              <p className="total-count">Total RSVPs: <strong>{attendeesArray.length}</strong></p>
+              <p className="total-count">Total RSVPs: <strong>{eventAttendeeData.reduce((sum, ev) => sum + (ev.attendees?.length || 0), 0)}</strong></p>
             </div>
-            <button className="btn-export" onClick={exportToCSV}>
-              📥 Export to CSV
-            </button>
+            <div className="admin-actions">
+              <button className="btn-refresh" onClick={refreshAttendees}>
+                🔄 Refresh
+              </button>
+              <button className="btn-export" onClick={exportToCSV}>
+                📥 Export to CSV
+              </button>
+            </div>
           </div>
 
-          {attendeesArray.length === 0 ? (
+          {eventAttendeeData.length === 0 ? (
             <div className="empty-state">
               <p>No RSVPs yet</p>
             </div>
           ) : (
-            <div className="attendees-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Seat</th>
-                    <th>Status</th>
-                    <th>Registered</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {attendeesArray.map((attendee, index) => (
-                    <tr key={attendee.id} className={index % 2 === 0 ? 'even' : 'odd'}>
-                      <td className="name-cell">
-                        <strong>{attendee.name}</strong>
-                      </td>
-                      <td className="email-cell">
-                        <a href={`mailto:${attendee.email}`}>{attendee.email}</a>
-                      </td>
-                      <td className="phone-cell">
-                        <a href={`tel:${attendee.phone}`}>{attendee.phone}</a>
-                      </td>
-                      <td className="seat-cell">
-                        {attendee.seat_number ? `Seat ${attendee.seat_number}` : '-'}
-                      </td>
-                      <td className="status-cell">
-                        <span className={`status-badge ${attendee.status}`}>
-                          {attendee.status}
-                        </span>
-                      </td>
-                      <td className="date-cell">
-                        {new Date(attendee.created_at).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="events-attendees">
+              {eventAttendeeData.map((eventItem) => (
+                <div key={eventItem.id || eventItem.title} className="event-attendee-group">
+                  <h3 style={{ color: 'black' }}>{eventItem.title}</h3>
+                  <a href={`/event/${eventItem.id}`} target="_blank" rel="noopener noreferrer" style={{color: '#0066cc'}} className="event-card-link">
+                    View RSVP Page
+                  </a>
+                  <p className="event-meta">{eventItem.date} • {eventItem.time} • {eventItem.location}</p>
+
+                  {eventItem.attendees.length === 0 ? (
+                    <div className="empty-state"><p>No attendees for this event yet</p></div>
+                  ) : (
+                    <div className="attendees-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Seat</th>
+                            <th>Status</th>
+                            <th>Registered</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {eventItem.attendees.map((attendee, index) => (
+                            <tr key={`${eventItem.id || eventItem.title}-${attendee.id || index}`} className={index % 2 === 0 ? 'even' : 'odd'}>
+                              <td className="name-cell"><strong>{attendee.name}</strong></td>
+                              <td className="email-cell"><a href={`mailto:${attendee.email}`}>{attendee.email}</a></td>
+                              <td className="phone-cell"><a href={`tel:${attendee.phone}`}>{attendee.phone}</a></td>
+                              <td className="seat-cell">{attendee.seat_number ? `Seat ${attendee.seat_number}` : '-'}</td>
+                              <td className="status-cell"><span className={`status-badge ${attendee.status}`}>{attendee.status}</span></td>
+                              <td className="date-cell">{new Date(attendee.created_at).toLocaleDateString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </>
@@ -232,7 +287,7 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
                   location: '',
                   host: '',
                   totalSpots: 40,
-                  heroImage: '/images/event-hero.jpg'
+                  posterFile: null
                 });
               }}
             >
@@ -308,14 +363,13 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>Hero Image URL:</label>
+                  <label>Poster:</label>
                   <input
-                    type="text"
-                    value={eventForm.heroImage}
-                    onChange={(e) => setEventForm({...eventForm, heroImage: e.target.value})}
-                    placeholder="/images/event-hero.jpg"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setEventForm({...eventForm, posterFile: e.target.files[0]})}
                   />
-                  <p className="hint">Recommended size: 1600×600px (landscape) for the hero section.</p>
+                  <p className="hint">Upload a poster image (JPEG, PNG, etc.). Recommended size: 1600x600px (landscape).</p>
                 </div>
                 <div className="form-group">
                   <label>Description:</label>
@@ -344,7 +398,7 @@ function AdminDashboard({ attendees, event, onEventUpdate }) {
                         location: '',
                         host: '',
                         totalSpots: 40,
-                        heroImage: '/images/event-hero.jpg'
+                        posterFile: null
                       });
                     }}
                   >

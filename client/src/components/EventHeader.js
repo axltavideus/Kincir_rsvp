@@ -25,7 +25,6 @@ function EventHeader({ event, capacity }) {
       <div className="pf-hero-content">
         <div className="pf-nav">
           <div className="pf-logo">Wahana Visi Indonesia</div>
-          <button className="pf-nav-btn">Create event</button>
         </div>
 
         <div className="pf-chip">

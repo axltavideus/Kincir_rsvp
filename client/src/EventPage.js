@@ -73,90 +73,95 @@ function EventPage() {
   return (
     <div className="app">
       <div className="pf-root">
-        <EventHeader event={event} capacity={capacity} />
-        <div className="pf-body">
-          <div className="pf-host-card">
-            <div className="pf-avatar-emoji">🙂</div>
-            <div className="pf-host-info">
-              <div className="pf-host-label">Hosted by</div>
-              <div className="pf-host-name">{event.host}</div>
-            </div>
-            <div className="pf-spots-badge">{spotsText}</div>
-          </div>
-
-          <div className="pf-section" style={{ marginTop: '12px' }}>
-            <div className="pf-detail-row">
-              <div className="pf-detail-icon">📅</div>
-              <div>
-                <div className="pf-detail-label">Date &amp; time</div>
-                <div className="pf-detail-value">{event.date} · {event.time}</div>
+        <div className="pf-main">
+          <EventHeader event={event} capacity={capacity} />
+          <div className="pf-body">
+            <div className="pf-host-card">
+              <div className="pf-avatar-emoji">🙂</div>
+              <div className="pf-host-info">
+                <div className="pf-host-label">Hosted by</div>
+                <div className="pf-host-name">{event.host}</div>
               </div>
+              <div className="pf-spots-badge">{spotsText}</div>
             </div>
-            <div className="pf-detail-row">
-              <div className="pf-detail-icon">📍</div>
-              <div>
-                <div className="pf-detail-label">Location</div>
-                <div className="pf-detail-value">{event.location}</div>
+
+            <div className="pf-section" style={{ marginTop: '12px' }}>
+              <div className="pf-detail-row">
+                <div className="pf-detail-icon">📅</div>
+                <div>
+                  <div className="pf-detail-label">Date &amp; time</div>
+                  <div className="pf-detail-value">{event.date} · {event.time}</div>
+                </div>
               </div>
-            </div>
-          </div>
-
-          <div className="pf-section">
-            <div className="pf-section-title">About this event</div>
-            <div className="pf-description">{event.description}</div>
-          </div>
-
-          <div className="pf-rsvp-buttons">
-            <button className="pf-btn-rsvp" onClick={() => setShowRSVP(true)}>
-              RSVP
-            </button>
-            <button className="pf-btn-interested" onClick={() => alert('Marked as interested!')} >
-              Interested
-            </button>
-          </div>
-
-          {!showRSVP && (
-            <div className="pf-restricted">
-              <div className="pf-lock-icon">🔒</div>
-              <div className="pf-restricted-title">Restricted Access</div>
-              <div className="pf-restricted-sub">Only RSVP'd guests can view event activity &amp; see who's going</div>
-              <button className="pf-btn-rsvp-access" onClick={() => setShowRSVP(true)}>
-                RSVP for access
-              </button>
-              <div className="pf-sign-in-row">
-                Already RSVP'd? <a href="#">Sign in</a>
-              </div>
-            </div>
-          )}
-
-          {showRSVP && (
-            <div className="modal-overlay" onClick={() => setShowRSVP(false)}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <button className="modal-close" onClick={() => setShowRSVP(false)}>
-                  ×
-                </button>
-                <div className="rsvp-container">
-                  <RSVPForm
-                    selectedSeat={selectedSeat}
-                    eventId={eventId}
-                    onSubmitSuccess={() => {
-                      fetchAttendees();
-                      fetchEventData();
-                      setSelectedSeat(null);
-                      setShowRSVP(false);
-                    }}
-                  />
-                  <SeatSelector
-                    seats={seats}
-                    attendees={attendees}
-                    selectedSeat={selectedSeat}
-                    onSeatSelect={setSelectedSeat}
-                    totalSpots={event.totalSpots}
-                  />
+              <div className="pf-detail-row">
+                <div className="pf-detail-icon">📍</div>
+                <div>
+                  <div className="pf-detail-label">Location</div>
+                  <div className="pf-detail-value">{event.location}</div>
                 </div>
               </div>
             </div>
-          )}
+
+            <div className="pf-section">
+              <div className="pf-section-title">About this event</div>
+              <div className="pf-description">{event.description}</div>
+            </div>
+
+            <div className="pf-rsvp-buttons">
+              <button className="pf-btn-rsvp" onClick={() => setShowRSVP(true)}>
+                RSVP
+              </button>
+              <button className="pf-btn-interested" onClick={() => alert('Marked as interested!')} >
+                Interested
+              </button>
+            </div>
+
+            {!showRSVP && (
+              <div className="pf-restricted">
+                <div className="pf-lock-icon">🔒</div>
+                <div className="pf-restricted-title">Restricted Access</div>
+                <div className="pf-restricted-sub">Only RSVP'd guests can view event activity &amp; see who's going</div>
+                <button className="pf-btn-rsvp-access" onClick={() => setShowRSVP(true)}>
+                  RSVP for access
+                </button>
+                <div className="pf-sign-in-row">
+                  Already RSVP'd? <a href="#">Sign in</a>
+                </div>
+              </div>
+            )}
+
+            {showRSVP && (
+              <div className="modal-overlay" onClick={() => setShowRSVP(false)}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                  <button className="modal-close" onClick={() => setShowRSVP(false)}>
+                    ×
+                  </button>
+                  <div className="rsvp-container">
+                    <RSVPForm
+                      selectedSeat={selectedSeat}
+                      eventId={eventId}
+                      onSubmitSuccess={() => {
+                        fetchAttendees();
+                        fetchEventData();
+                        setSelectedSeat(null);
+                        setShowRSVP(false);
+                      }}
+                    />
+                    <SeatSelector
+                      seats={seats}
+                      attendees={attendees}
+                      selectedSeat={selectedSeat}
+                      onSeatSelect={setSelectedSeat}
+                      totalSpots={event.totalSpots}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="pf-poster">
+          <img src={event.heroImage} alt="Event Poster" />
         </div>
       </div>
     </div>

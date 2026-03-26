@@ -28,7 +28,7 @@ body,
 }
 
 .pf-root, .pf-body, .pf-footer {
-  max-width: 800px; /* or 1200px */
+  /* max-width handled by pf-root now */
 }
 
 
@@ -39,6 +39,29 @@ body,
   color: var(--text);
   width: 100%;
   margin: 0 auto;
+  display: flex;
+  gap: 20px;
+  padding: 0 20px;
+  max-width: 1200px;
+}
+
+.pf-main {
+  flex: 1;
+  max-width: 800px;
+}
+
+.pf-poster {
+  width: 300px;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+.pf-poster img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .pf-hero {

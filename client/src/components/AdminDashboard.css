@@ -14,6 +14,29 @@
   gap: 20px;
 }
 
+.admin-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-refresh {
+  padding: 10px 20px;
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-refresh:hover {
+  background-color: #138496;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+}
+
 .admin-header h2 {
   margin: 0;
   font-size: 1.8rem;
@@ -425,6 +448,31 @@ td {
   /* Container for events grid */
 }
 
+.events-attendees {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.event-attendee-group {
+  background: #fbfcfd;
+  border: 1px solid #737579c2;
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.event-attendee-group h3 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  color: #1a1a1a;
+}
+
+.event-meta {
+  margin: 0 0 14px;
+  font-size: 0.9rem;
+  color: #333333;
+}
+
 .events-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
@@ -494,6 +542,7 @@ td {
 
 .event-card-meta {
   margin-bottom: 15px;
+  color: black;
 }
 
 .event-card-meta p {
